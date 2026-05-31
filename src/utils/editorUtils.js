@@ -1,37 +1,74 @@
-// ── Supported languages (must match backend judge0.js language IDs) ───────────
 export const LANGUAGES = [
-  { id: 'javascript', label: 'JavaScript', monaco: 'javascript' },
   { id: 'python',     label: 'Python 3',   monaco: 'python'     },
+  { id: 'javascript', label: 'JavaScript', monaco: 'javascript' },
   { id: 'java',       label: 'Java',       monaco: 'java'       },
   { id: 'cpp',        label: 'C++',        monaco: 'cpp'        },
   { id: 'c',          label: 'C',          monaco: 'c'          },
-  { id: 'typescript', label: 'TypeScript', monaco: 'typescript' },
   { id: 'go',         label: 'Go',         monaco: 'go'         },
   { id: 'rust',       label: 'Rust',       monaco: 'rust'       },
 ]
 
-// ── Default starter templates ────────────────────────────────────────────────
+// Default templates — used only when problem has no starter code for a language
 export const TEMPLATES = {
-  javascript: `// JavaScript solution\nfunction solution() {\n  const lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n  // your code here\n}\nsolution();\n`,
-  python:     `# Python 3 solution\nimport sys\ninput = sys.stdin.readline\n\ndef solve():\n    # your code here\n    pass\n\nsolve()\n`,
-  java:       `import java.util.*;\nimport java.io.*;\n\npublic class Main {\n    public static void main(String[] args) throws IOException {\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\n        // your code here\n    }\n}\n`,
-  cpp:        `#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    // your code here\n    return 0;\n}\n`,
-  c:          `#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n    // your code here\n    return 0;\n}\n`,
-  typescript: `// TypeScript solution\nconst lines = require('fs').readFileSync('/dev/stdin','utf8').trim().split('\\n');\n// your code here\n`,
-  go:         `package main\n\nimport (\n    "bufio"\n    "fmt"\n    "os"\n)\n\nfunc main() {\n    reader := bufio.NewReader(os.Stdin)\n    _ = reader\n    // your code here\n    fmt.Println()\n}\n`,
-  rust:       `use std::io::{self, BufRead};\n\nfn main() {\n    let stdin = io::stdin();\n    for line in stdin.lock().lines() {\n        let _line = line.unwrap();\n        // your code here\n    }\n}\n`,
+  python:     `# Write your code here\n`,
+  javascript: `// Write your code here\n`,
+  java:       `public class Main {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}\n`,
+  cpp:        `#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    // Write your code here\n    return 0;\n}\n`,
+  c:          `#include <stdio.h>\n\nint main() {\n    // Write your code here\n    return 0;\n}\n`,
+  go:         `package main\n\nfunc main() {\n    // Write your code here\n}\n`,
+  rust:       `fn main() {\n    // Write your code here\n}\n`,
 }
 
-// ── localStorage auto-save ───────────────────────────────────────────────────
-const KEY = (pid, lang) => `cp_code_${pid}_${lang}`
+const key = (problemId, lang) => `code:${problemId}:${lang}`
 
-export const loadCode = (pid, lang) => {
-  if (!pid) return TEMPLATES[lang] ?? ''
-  try { return localStorage.getItem(KEY(pid, lang)) ?? TEMPLATES[lang] ?? '' }
-  catch { return TEMPLATES[lang] ?? '' }
+/**
+ * Load code for a problem + language with this priority:
+ *   1. User's saved code in localStorage  (they already started typing)
+ *   2. Problem's starterCode[lang]         (non-empty string set by admin)
+ *   3. Default TEMPLATES[lang]             (fallback generic main stub)
+ *
+ * @param {string} problemId
+ * @param {string} lang
+ * @param {object} starterCode  — problem.starterCode object, e.g. { python: '...', java: '...' }
+ */
+export function loadCode(problemId, lang, starterCode = {}) {
+  // 1. Check localStorage first — user may have already edited
+  if (problemId) {
+    try {
+      const saved = localStorage.getItem(key(problemId, lang))
+      if (saved) return saved
+    } catch { /* ignore */ }
+  }
+
+  // 2. Use problem's starter code if non-empty
+  const starter = starterCode?.[lang]
+  if (starter && starter.trim()) return starter
+
+  // 3. Fall back to generic template
+  return TEMPLATES[lang] ?? ''
 }
 
-export const saveCode = (pid, lang, code) => {
-  if (!pid) return
-  try { localStorage.setItem(KEY(pid, lang), code) } catch { /* quota */ }
+/**
+ * Persist user's code. Clears storage if code matches starter/template (no point saving defaults).
+ */
+export function saveCode(problemId, lang, code, starterCode = {}) {
+  if (!problemId) return
+  try {
+    const base = starterCode?.[lang]?.trim() || (TEMPLATES[lang] ?? '').trim()
+    if (!code || code.trim() === base) {
+      localStorage.removeItem(key(problemId, lang))
+    } else {
+      localStorage.setItem(key(problemId, lang), code)
+    }
+  } catch { /* ignore */ }
+}
+
+/**
+ * Clear all saved code for a problem (e.g. after reset).
+ */
+export function clearCode(problemId) {
+  if (!problemId) return
+  try {
+    LANGUAGES.forEach(({ id }) => localStorage.removeItem(key(problemId, id)))
+  } catch { /* ignore */ }
 }

@@ -1,14 +1,12 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProblem } from '../features/problems/problemSlice'
-import { runCode, submitCode, clearResults } from '../features/submissions/submissionSlice'
+import { runCode, submitCode, clearResults, setConsoleTab } from '../features/submissions/submissionSlice'
 import { patchUser } from '../features/auth/authSlice'
 import { useAuth, useNotify } from '../hooks'
-import { loadCode, TEMPLATES } from '../utils/editorUtils'
-import ProblemPanel from '../components/editor/ProblemPanel'
-import CodeEditor   from '../components/editor/CodeEditor'
-import OutputPanel  from '../components/editor/OutputPanel'
+import { loadCode } from '../utils/editorUtils'
+import CodingWorkspace from '../components/editor/CodingWorkspace'
 
 export default function ProblemSolvePage() {
   const { id }   = useParams()
@@ -19,32 +17,33 @@ export default function ProblemSolvePage() {
   const { selected: problem, loading } = useSelector(s => s.problems)
 
   const [language, setLanguage] = useState('python')
-  const [code, setCode]         = useState(TEMPLATES['python'])
+  const [code,     setCode]     = useState('')
 
-  // Fetch problem
   useEffect(() => {
     dispatch(fetchProblem(id))
     dispatch(clearResults())
   }, [id, dispatch])
 
-  // Load saved code when problem + language changes
+  // Re-load code whenever problem loads, id changes, or language switches
+  // Priority: localStorage saved → problem.starterCode[lang] → default template
   useEffect(() => {
-    setCode(loadCode(id, language))
-  }, [id, language])
+    setCode(loadCode(id, language, problem?.starterCode))
+  }, [id, language, problem?.starterCode])
 
-  // Handle language switch (load code for that lang)
   const handleLangChange = useCallback((lang) => {
     setLanguage(lang)
-    setCode(loadCode(id, lang))
-  }, [id])
+    // loadCode is called via the above useEffect when language state updates
+  }, [])
 
   const handleRun = useCallback(() => {
     if (!code.trim()) return notify.warn('Write some code first!')
+    dispatch(setConsoleTab('output'))
     dispatch(runCode({ problemId: id, language, code }))
   }, [code, id, language, dispatch, notify])
 
   const handleSubmit = useCallback(() => {
     if (!code.trim()) return notify.warn('Write some code first!')
+    dispatch(setConsoleTab('output'))
     dispatch(submitCode({ problemId: id, language, code }))
       .unwrap()
       .then(result => {
@@ -60,30 +59,18 @@ export default function ProblemSolvePage() {
   }, [code, id, language, dispatch, notify, user])
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* Left – Problem description */}
-      <div className="w-[38%] min-w-[280px] border-r border-surface-200 overflow-hidden flex-shrink-0">
-        <ProblemPanel problem={problem} loading={loading} />
-      </div>
-
-      {/* Right – Editor + Output */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Editor takes most space */}
-        <div className="flex-1 overflow-hidden">
-          <CodeEditor
-            problemId={id}
-            language={language}
-            onLangChange={handleLangChange}
-            code={code}
-            onCodeChange={setCode}
-          />
-        </div>
-
-        {/* Output panel – fixed height */}
-        <div className="h-64 border-t border-surface-200 flex-shrink-0 overflow-hidden">
-          <OutputPanel problem={problem} onRun={handleRun} onSubmit={handleSubmit} />
-        </div>
-      </div>
+    <div className="h-[calc(100vh-56px)] overflow-hidden">
+      <CodingWorkspace
+        problemId={id}
+        problem={problem}
+        problemLoading={loading}
+        code={code}
+        onCodeChange={setCode}
+        language={language}
+        onLangChange={handleLangChange}
+        onRun={handleRun}
+        onSubmit={handleSubmit}
+      />
     </div>
   )
 }

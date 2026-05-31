@@ -19,14 +19,26 @@ export const fetchCollegeLeaderboard = createAsyncThunk('leaderboard/fetchColleg
   }
 })
 
+export const fetchOverallLeaderboard = createAsyncThunk('leaderboard/fetchOverall', async (params, { rejectWithValue }) => {
+  try {
+    const res = await leaderboardService.getOverall(params)
+    return res.data.data ?? res.data
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || 'Failed to load overall leaderboard')
+  }
+})
+
 const leaderboardSlice = createSlice({
   name: 'leaderboard',
   initialState: {
-    entries:  [],  // [{ rank, name, totalSolved, streak, score }]
-    myRank:   null, // { rank, score }
-    total:    0,
-    loading:  false,
-    error:    null,
+    entries:        [],    // college-scoped entries
+    myRank:         null,  // { rank, score } in college
+    myOverallRank:  null,  // { rank, score } across all colleges
+    overallEntries: [],    // all-college combined entries
+    total:          0,
+    loading:        false,
+    overallLoading: false,
+    error:          null,
   },
   reducers: {
     clearError: (s) => { s.error = null },
@@ -34,22 +46,33 @@ const leaderboardSlice = createSlice({
   extraReducers: (b) => {
     const handle = (s, { payload }) => {
       s.loading = false
-      // Backend: { data: [...], total, myRank: { rank, score } }
       if (Array.isArray(payload)) {
         s.entries = payload; s.total = payload.length
       } else {
-        s.entries = payload.data    ?? []
-        s.total   = payload.total   ?? 0
-        s.myRank  = payload.myRank  ?? null
+        s.entries        = payload.data           ?? []
+        s.total          = payload.total          ?? 0
+        s.myRank         = payload.myRank         ?? null
+        s.myOverallRank  = payload.myOverallRank  ?? null
       }
     }
     b
-      .addCase(fetchLeaderboard.pending,          (s) => { s.loading = true; s.error = null })
-      .addCase(fetchLeaderboard.fulfilled,        handle)
-      .addCase(fetchLeaderboard.rejected,         (s, { payload }) => { s.loading = false; s.error = payload })
-      .addCase(fetchCollegeLeaderboard.pending,   (s) => { s.loading = true; s.error = null })
-      .addCase(fetchCollegeLeaderboard.fulfilled, handle)
-      .addCase(fetchCollegeLeaderboard.rejected,  (s, { payload }) => { s.loading = false; s.error = payload })
+      .addCase(fetchLeaderboard.pending,           (s) => { s.loading = true; s.error = null })
+      .addCase(fetchLeaderboard.fulfilled,         handle)
+      .addCase(fetchLeaderboard.rejected,          (s, { payload }) => { s.loading = false; s.error = payload })
+      .addCase(fetchCollegeLeaderboard.pending,    (s) => { s.loading = true; s.error = null })
+      .addCase(fetchCollegeLeaderboard.fulfilled,  handle)
+      .addCase(fetchCollegeLeaderboard.rejected,   (s, { payload }) => { s.loading = false; s.error = payload })
+      .addCase(fetchOverallLeaderboard.pending,    (s) => { s.overallLoading = true; s.error = null })
+      .addCase(fetchOverallLeaderboard.fulfilled,  (s, { payload }) => {
+        s.overallLoading = false
+        if (Array.isArray(payload)) {
+          s.overallEntries = payload
+        } else {
+          s.overallEntries = payload.data          ?? []
+          s.myOverallRank  = payload.myOverallRank ?? s.myOverallRank ?? null
+        }
+      })
+      .addCase(fetchOverallLeaderboard.rejected,   (s, { payload }) => { s.overallLoading = false; s.error = payload })
   },
 })
 
