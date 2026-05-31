@@ -19,9 +19,13 @@ export const studentService = {
 
 export const leaderboardService = {
   // GET /api/leaderboard  → student gets own college; admin gets all
-  get:          (params)    => api.get('/leaderboard', { params }),
+  get:              (params)    => api.get('/leaderboard', { params }),
+  // GET /api/leaderboard/overall  → all students across all colleges
+  getOverall:       (params)    => api.get('/leaderboard/overall', { params }),
   // GET /api/leaderboard/:collegeId  (admin only)
-  getByCollege: (collegeId) => api.get(`/leaderboard/${collegeId}`),
+  getByCollege:     (collegeId) => api.get(`/leaderboard/${collegeId}`),
   // POST /api/leaderboard/:collegeId/rebuild  (admin)
-  rebuild:      (collegeId) => api.post(`/leaderboard/${collegeId}/rebuild`),
+  rebuild:          (collegeId) => api.post(`/leaderboard/${collegeId}/rebuild`),
+  // POST /api/leaderboard/overall/rebuild  (admin)
+  rebuildOverall:   ()          => api.post('/leaderboard/overall/rebuild'),
 }

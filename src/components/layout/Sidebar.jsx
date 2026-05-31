@@ -13,6 +13,7 @@ const STUDENT_NAV = [
   { to: '/practice',    icon: BookOpen,        label: 'Practice'     },
   { to: '/submissions', icon: Send,            label: 'Submissions'  },
   { to: '/leaderboard', icon: Trophy,          label: 'Leaderboard'  },
+  { to: '/contests',    icon: Trophy,          label: 'Contests'     },
   { to: '/profile',     icon: User,            label: 'Profile'      },
 ]
 
@@ -23,6 +24,7 @@ const ADMIN_NAV = [
   { to: '/admin/colleges',       icon: Building2,       label: 'Colleges'    },
   { to: '/admin/submissions',    icon: Activity,        label: 'Submissions' },
   { to: '/admin/leaderboard',    icon: Trophy,          label: 'Leaderboard' },
+  { to: '/admin/contests',       icon: Trophy,          label: 'Contests'    },
 ]
 
 export default function Sidebar({ isAdmin = false }) {
