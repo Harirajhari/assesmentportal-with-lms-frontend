@@ -7,6 +7,7 @@ import { useAuth } from '../hooks'
 import { StatCard, PageLoader, DiffBadge } from '../components/ui'
 import { CheckCircle, Flame, Target, Trophy, ArrowRight, BookOpen, Send } from 'lucide-react'
 import { rankLabel, timeAgo } from '../utils/helpers'
+import DailyStreakWidget from '../components/widgets/DailyStreakWidget'
 
 export default function HomePage() {
   const dispatch = useDispatch()
@@ -104,6 +105,8 @@ export default function HomePage() {
             </div>
           )}
         </div>
+
+        <DailyStreakWidget />
 
         {/* Leaderboard mini */}
         <div>

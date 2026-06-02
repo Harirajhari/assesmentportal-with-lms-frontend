@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 const SIDEBAR_HIDDEN_PATTERNS = [
   /^\/contests\/[^/]+$/,  // /contests/:id  (contest arena)
   /^\/problem\/[^/]+$/,   // /problem/:id   (practice solve page)
+   /^\/daily$/,       // /daily         (daily challenge page)
 ]
 
 export default function AppLayout({ isAdmin = false }) {

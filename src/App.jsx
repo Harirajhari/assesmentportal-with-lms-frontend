@@ -25,6 +25,9 @@ import ContestLeaderboardPage from './pages/contest/ContestLeaderboardPage'
 import AdminContestListPage from './pages/admin/AdminContestListPage'
 import AdminContestFormPage from './pages/admin/AdminContestFormPage'
 
+import DailyChallengePage from './pages/DailyChallengePage'
+import AdminDailySchedulePage from './pages/admin/AdminDailySchedulePage'
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -46,6 +49,7 @@ export default function App() {
             <Route path="/contests" element={<ContestListPage />} />
             <Route path="/contests/:id" element={<ContestArenaPage />} />
             <Route path="/contests/:id/leaderboard" element={<ContestLeaderboardPage />} />
+            <Route path="/daily" element={<DailyChallengePage />} />
           </Route>
         </Route>
 
@@ -63,6 +67,7 @@ export default function App() {
             <Route path="/admin/contests" element={<AdminContestListPage />} />
             <Route path="/admin/contests/new" element={<AdminContestFormPage />} />
             <Route path="/admin/contests/:id/edit" element={<AdminContestFormPage />} />
+            <Route path="/admin/daily" element={<AdminDailySchedulePage />} />
           </Route>
         </Route>
 
