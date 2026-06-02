@@ -16,8 +16,8 @@ export default function OutputPanel({ problem, onRun, onSubmit, submitLabel = 'S
 
       {/* Tab bar + buttons */}
       <div className="flex items-center border-b border-surface-100 px-4 flex-shrink-0 bg-surface-50">
-        <TabBtn label="Test Cases" active={consoleTab === 'cases'}  onClick={() => dispatch(setConsoleTab('cases'))}  />
-        <TabBtn label="Output"     active={consoleTab === 'output'} onClick={() => dispatch(setConsoleTab('output'))} dot={!!activeResult} />
+        <TabBtn label="Test Cases" active={consoleTab === 'cases'} onClick={() => dispatch(setConsoleTab('cases'))} />
+        <TabBtn label="Output" active={consoleTab === 'output'} onClick={() => dispatch(setConsoleTab('output'))} dot={!!activeResult} />
 
         <div className="ml-auto flex items-center gap-2 py-2">
           {onRun && (
@@ -41,7 +41,7 @@ export default function OutputPanel({ problem, onRun, onSubmit, submitLabel = 'S
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 bg-white">
-        {consoleTab === 'cases'  && <TestCasesTab problem={problem} />}
+        {consoleTab === 'cases' && <TestCasesTab problem={problem} />}
         {consoleTab === 'output' && (
           <OutputTab
             result={activeResult}
@@ -132,12 +132,12 @@ function OutputTab({ result, isSubmit, running, submitting, error }) {
     )
   }
 
-  const verdict     = result.verdict ?? result.overallStatus ?? '—'
-  const passedCount = result.passedCount ?? 0
-  const totalCases  = result.totalTestCases ?? 0
-  const runtime     = result.runtime ?? result.avgRuntime   // ms
-  const memory      = result.memory                          // KB
-  const accepted    = verdict === 'Accepted'
+  const verdict = result.verdict ?? result.overallStatus ?? result.status ?? '—'
+  const passedCount = result.passedCount ?? result.testCasesPassed ?? 0
+  const totalCases = result.totalTestCases ?? 0
+  const runtime = result.runtime ?? result.avgRuntime   // ms
+  const memory = result.memory                          // KB
+  const accepted = verdict === 'Accepted'
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -152,7 +152,7 @@ function OutputTab({ result, isSubmit, running, submitting, error }) {
             ${accepted ? 'bg-green-100' : 'bg-red-100'}`}>
             {accepted
               ? <CheckCircle size={22} className="text-green-600" />
-              : <XCircle     size={22} className="text-red-500" />
+              : <XCircle size={22} className="text-red-500" />
             }
           </div>
           <div>
@@ -215,8 +215,8 @@ function OutputTab({ result, isSubmit, running, submitting, error }) {
       )}
 
       {/* ── stdout / stderr / compile error ── */}
-      {result.stdout       && <OutputBlock label="stdout"        content={result.stdout}       cls="text-slate-700"  />}
-      {result.stderr       && <OutputBlock label="stderr"        content={result.stderr}       cls="text-red-600"    />}
+      {result.stdout && <OutputBlock label="stdout" content={result.stdout} cls="text-slate-700" />}
+      {result.stderr && <OutputBlock label="stderr" content={result.stderr} cls="text-red-600" />}
       {result.compileError && <OutputBlock label="Compile Error" content={result.compileError} cls="text-orange-600" />}
     </div>
   )
@@ -255,7 +255,7 @@ function TestResult({ index, r }) {
       <div className="flex items-center gap-2 font-semibold">
         {ok
           ? <CheckCircle size={12} className="text-green-600" />
-          : <XCircle     size={12} className="text-red-500" />
+          : <XCircle size={12} className="text-red-500" />
         }
         <span className={ok ? 'text-green-700' : 'text-red-600'}>
           Case {index + 1} — {ok ? 'Passed' : 'Failed'}
@@ -300,7 +300,7 @@ function OutputBlock({ label, content, cls }) {
 // runtime comes in ms from Judge0
 function formatRuntime(ms) {
   if (ms == null) return '—'
-  if (ms < 1)   return '< 1'
+  if (ms < 1) return '< 1'
   if (ms < 1000) return String(Math.round(ms))
   return (ms / 1000).toFixed(2)
 }

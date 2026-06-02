@@ -3,33 +3,35 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   ChevronLeft, ChevronRight,
   LayoutDashboard, BookOpen, Send, Trophy, User,
-  Settings, Users, Building2, FileText, Activity, LogOut, Code2,
+  Settings, Users, Building2, FileText, Activity, LogOut, Code2, Flame 
 } from 'lucide-react'
 import { toggleSidebar } from '../../features/ui/uiSlice'
 import { useAuth } from '../../hooks'
 
 const STUDENT_NAV = [
-  { to: '/',            icon: LayoutDashboard, label: 'Home'         },
-  { to: '/practice',    icon: BookOpen,        label: 'Practice'     },
-  { to: '/submissions', icon: Send,            label: 'Submissions'  },
-  { to: '/leaderboard', icon: Trophy,          label: 'Leaderboard'  },
-  { to: '/contests',    icon: Trophy,          label: 'Contests'     },
-  { to: '/profile',     icon: User,            label: 'Profile'      },
+  { to: '/', icon: LayoutDashboard, label: 'Home' },
+  { to: '/practice', icon: BookOpen, label: 'Practice' },
+  { to: '/submissions', icon: Send, label: 'Submissions' },
+  { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
+  { to: '/contests', icon: Trophy, label: 'Contests' },
+  { to: '/profile', icon: User, label: 'Profile' },
+  { to: '/daily', icon: Flame, label: 'Daily Challenge' },
 ]
 
 const ADMIN_NAV = [
-  { to: '/admin',                icon: LayoutDashboard, label: 'Dashboard'   },
-  { to: '/admin/problems',       icon: FileText,        label: 'Problems'    },
-  { to: '/admin/students',       icon: Users,           label: 'Students'    },
-  { to: '/admin/colleges',       icon: Building2,       label: 'Colleges'    },
-  { to: '/admin/submissions',    icon: Activity,        label: 'Submissions' },
-  { to: '/admin/leaderboard',    icon: Trophy,          label: 'Leaderboard' },
-  { to: '/admin/contests',       icon: Trophy,          label: 'Contests'    },
+  { to: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/admin/problems', icon: FileText, label: 'Problems' },
+  { to: '/admin/students', icon: Users, label: 'Students' },
+  { to: '/admin/colleges', icon: Building2, label: 'Colleges' },
+  { to: '/admin/submissions', icon: Activity, label: 'Submissions' },
+  { to: '/admin/leaderboard', icon: Trophy, label: 'Leaderboard' },
+  { to: '/admin/contests', icon: Trophy, label: 'Contests' },
+  { to: '/admin/daily', icon: Flame, label: 'Daily Schedule' },
 ]
 
 export default function Sidebar({ isAdmin = false }) {
   const dispatch = useDispatch()
-  const open     = useSelector(s => s.ui.sidebarOpen)
+  const open = useSelector(s => s.ui.sidebarOpen)
   const { user, logout } = useAuth()
   const nav = isAdmin ? ADMIN_NAV : STUDENT_NAV
 
